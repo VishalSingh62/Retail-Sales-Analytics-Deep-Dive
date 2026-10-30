@@ -24,16 +24,6 @@ class FutureSalesPredictor:
     """
 
     def __init__(self, model_path: str = None, historical_data_path: str = None):
-        if model_path is None:
-            model_path = os.path.abspath(
-                os.path.join(os.path.dirname(__file__), "..", "models", "linear_regression_model.pkl")
-            )
-        if not os.path.exists(model_path):
-            raise FileNotFoundError(f"Model file not found at: {model_path}")
-        
-        self.model = joblib.load(model_path)
-        self.model_path = model_path
-
         # Load historical dataset to establish baseline lags and store profiles
         if historical_data_path is None:
             historical_data_path = os.path.abspath(
@@ -45,6 +35,26 @@ class FutureSalesPredictor:
             self.history_df = run_feature_engineering()
         else:
             self.history_df = pd.read_csv(historical_data_path)
+
+        # Robust model loading with automatic fallback for cross-Python / cross-platform unpickling
+        if model_path is None:
+            model_path = os.path.abspath(
+                os.path.join(os.path.dirname(__file__), "..", "models", "linear_regression_model.pkl")
+            )
+        
+        self.model = None
+        if os.path.exists(model_path):
+            try:
+                self.model = joblib.load(model_path)
+            except Exception as e:
+                print(f"[INFO] Cross-environment pickle version mismatch ({e}). Re-fitting model locally...")
+                self.model = None
+
+        if self.model is None:
+            from src.train_model import train_linear_regression
+            self.model, _, _, _ = train_linear_regression(self.history_df, model_save_path=model_path)
+
+        self.model_path = model_path
 
         # Build store metadata lookup
         store_meta = self.history_df[["store_nbr", "type", "city", "state", "cluster"]].drop_duplicates()

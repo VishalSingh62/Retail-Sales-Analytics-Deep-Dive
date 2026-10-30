@@ -36,17 +36,7 @@ def evaluate_model(
         output_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "outputs"))
     os.makedirs(output_dir, exist_ok=True)
 
-    # 1. Load model if not provided
-    if model is None:
-        model_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "..", "models", "linear_regression_model.pkl")
-        )
-        if not os.path.exists(model_path):
-            raise FileNotFoundError(f"Model file not found at {model_path}. Train the model first.")
-        print(f"Loading trained model pipeline from: {model_path}")
-        model = joblib.load(model_path)
-
-    # 2. Load test data if not provided
+    # 1. Load test data first
     if test_df is None:
         featured_path = os.path.join(output_dir, "featured_monthly_retail_sales.csv")
         if os.path.exists(featured_path):
@@ -55,6 +45,23 @@ def evaluate_model(
             from src.feature_engineering import run_feature_engineering
             full_df = run_feature_engineering()
         test_df = full_df[full_df["year"] >= 2017].copy()
+
+    # 2. Load model or fit on the fly if cross-environment pickle mismatch occurs
+    if model is None:
+        model_path = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "models", "linear_regression_model.pkl")
+        )
+        if os.path.exists(model_path):
+            try:
+                model = joblib.load(model_path)
+            except Exception as e:
+                print(f"[INFO] Pickle mismatch ({e}). Fitting pipeline on the fly...")
+                model = None
+        if model is None:
+            from src.train_model import train_linear_regression
+            featured_path = os.path.join(output_dir, "featured_monthly_retail_sales.csv")
+            full_df = pd.read_csv(featured_path)
+            model, _, _, _ = train_linear_regression(full_df, model_save_path=model_path)
 
     X_test = test_df[CATEGORICAL_FEATURES + NUMERICAL_FEATURES]
     y_test = test_df[TARGET_VARIABLE].values
