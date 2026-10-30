@@ -29,6 +29,9 @@ ENV/
 # Large dataset files (train.csv is ~122MB, exceeding GitHub's 100MB limit)
 dataset/train.csv
 
+# Serialized models (platform-dependent binary pickles)
+models/*.pkl
+
 # OS & Editor files
 .DS_Store
 Thumbs.db

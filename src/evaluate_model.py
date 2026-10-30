@@ -51,11 +51,10 @@ def evaluate_model(
         model_path = os.path.abspath(
             os.path.join(os.path.dirname(__file__), "..", "models", "linear_regression_model.pkl")
         )
-        if os.path.exists(model_path):
+        if sys.platform == "win32" and os.path.exists(model_path):
             try:
                 model = joblib.load(model_path)
-            except Exception as e:
-                print(f"[INFO] Pickle mismatch ({e}). Fitting pipeline on the fly...")
+            except Exception:
                 model = None
         if model is None:
             from src.train_model import train_linear_regression
