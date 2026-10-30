@@ -1,0 +1,11 @@
+{
+    "model_name": "Linear Regression",
+    "primary_metric": "Mean Absolute Error (MAE)",
+    "MAE": 1829.07,
+    "RMSE": 5046.73,
+    "R2_Score": 0.9833,
+    "MAPE_Percent": 756.78,
+    "MAPE_Significant_Percent": 104.15,
+    "Test_Samples_Count": 14256,
+    "Test_Period": "2017-01 to 2017-08"
+}

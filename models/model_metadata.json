@@ -1,0 +1,40 @@
+{
+    "model_type": "LinearRegression",
+    "target_variable": "sales",
+    "categorical_features": [
+        "store_nbr",
+        "family",
+        "type",
+        "city",
+        "state",
+        "season",
+        "cluster"
+    ],
+    "numerical_features": [
+        "year",
+        "month",
+        "quarter",
+        "month_number",
+        "holiday_indicator",
+        "holiday_count",
+        "weekend_indicator",
+        "oil_price",
+        "transaction_count",
+        "lag_1_sales",
+        "lag_2_sales",
+        "lag_3_sales",
+        "rolling_mean_3_sales",
+        "lag_12_sales"
+    ],
+    "test_year_cutoff": 2017,
+    "train_samples": 80190,
+    "test_samples": 14256,
+    "train_date_range": [
+        "2013-01",
+        "2016-12"
+    ],
+    "test_date_range": [
+        "2017-01",
+        "2017-08"
+    ]
+}
