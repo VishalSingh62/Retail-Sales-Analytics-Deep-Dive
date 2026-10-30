@@ -36,18 +36,18 @@ class FutureSalesPredictor:
         else:
             self.history_df = pd.read_csv(historical_data_path)
 
-        # Robust model loading with automatic fallback for cross-Python / cross-platform unpickling
+        # Robust model loading: On Cloud/Linux containers or if pickle mismatch occurs, fit natively in memory
         if model_path is None:
             model_path = os.path.abspath(
                 os.path.join(os.path.dirname(__file__), "..", "models", "linear_regression_model.pkl")
             )
-        
+
         self.model = None
-        if os.path.exists(model_path):
+        # On Linux/Cloud environments (like Streamlit Cloud), train model natively to guarantee 100% version compatibility
+        if sys.platform == "win32" and os.path.exists(model_path):
             try:
                 self.model = joblib.load(model_path)
             except Exception as e:
-                print(f"[INFO] Cross-environment pickle version mismatch ({e}). Re-fitting model locally...")
                 self.model = None
 
         if self.model is None:
